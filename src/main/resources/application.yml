@@ -1,0 +1,20 @@
+spring:
+  security:
+    user:
+      password: admin
+      name: admin
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:file:~/starbux;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password: sa
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+  h2:
+    console:
+      enabled: true
+      path: /h2
+      settings:
+        web-allow-others: true
