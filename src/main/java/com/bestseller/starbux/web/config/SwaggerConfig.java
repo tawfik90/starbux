@@ -16,7 +16,7 @@ public class SwaggerConfig {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
                 .paths(PathSelectors.ant("/**"))
-                .apis(RequestHandlerSelectors.basePackage("com.cognizant.garage.web.service"))
+                .apis(RequestHandlerSelectors.basePackage("com.bestseller.starbux.web.service"))
                 .build();
     }
 }
