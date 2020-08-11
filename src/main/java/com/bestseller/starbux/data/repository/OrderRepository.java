@@ -14,6 +14,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("select sum (a.orderAmount) from Order a where a.customer.id = :customerId ")
     Double findTotalAmountOfOrdersBy(Long customerId);
 
-    Optional<Order> findByIdAndAndOrderStatus(Long id, OrderStatus orderStatus);
+    Optional<Order> findByIdAndOrderStatus(Long id, OrderStatus orderStatus);
 
 }

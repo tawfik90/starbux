@@ -4,8 +4,10 @@ import com.bestseller.starbux.business.domain.CustomerOrdersReportResponse;
 import com.bestseller.starbux.business.domain.MostToppingsReportResponse;
 import com.bestseller.starbux.data.entity.Customer;
 import com.bestseller.starbux.data.repository.OrderRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class ReportServiceImpl implements ReportService {
 
@@ -20,6 +22,7 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public CustomerOrdersReportResponse getTotalAmountOfOrdersBy(Long customerId) {
+        log.info("Entered getTotalAmountOfOrdersBy(Long) by customerId {}", customerId);
         Customer customer = customerService.getCustomerBy(customerId);
         Double totalAmount = orderRepository.findTotalAmountOfOrdersBy(customerId);
         return new CustomerOrdersReportResponse(customer, totalAmount);

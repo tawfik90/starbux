@@ -12,12 +12,14 @@ import com.bestseller.starbux.data.entity.ToppingDetails;
 import com.bestseller.starbux.data.repository.OrderDetailsRepository;
 import com.bestseller.starbux.data.repository.OrderRepository;
 import com.bestseller.starbux.exception.NotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 public class OrderServiceImpl implements OrderService {
 
@@ -44,12 +46,15 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Order create() {
+        log.info("Entered create() method");
         Order order = new Order(LocalDate.now(), OrderStatus.IN_PROGRESS);
         return orderRepository.save(order);
     }
 
     @Override
     public Order addOrderDetail(Long orderId, OrderDetailsRequest orderDetailsRequest) {
+        log.info("Entered addOrderDetail(Long, OrderDetailsRequest) method for orderId {}", orderId);
+        log.info("Start Lod order data by id {}", orderId);
         Order order = getOrderByIdAndStatusOrThrowException(orderId, OrderStatus.IN_PROGRESS);
         Drink drink = drinkService.findDrinkByIdOrThrowException(orderDetailsRequest.getDrinkId());
 
@@ -67,6 +72,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private Double getOrderTotalAmount(OrderDetails orderDetails) {
+        log.info("Entered getOrderTotalAmount(OrderDetails)");
         Double totalAmount = 0.00d;
         totalAmount += orderDetailsRepository.getTotalAmountForDrinks(orderDetails.getOrder().getId());
         totalAmount += orderDetailsRepository.getTotalAmountForToppings(orderDetails.getOrder().getId());
@@ -75,11 +81,13 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Order getOrderBy(Long id) {
+        log.info("Entered getOrderBy(Long) {}", id);
         return orderRepository.findById(id).orElseThrow(() -> new NotFoundException("OrderId is not exist"));
     }
 
     @Override
     public Order finalizeOrder(Long orderId, CustomerRequest customerRequest) {
+        log.info("Entered finalizeOrder(Long, CustomerRequest) for orderId {}", orderId);
         Customer customer = customerService.getCustomerBy(customerRequest.getUsername());
         Order order = getOrderByIdAndStatusOrThrowException(orderId, OrderStatus.IN_PROGRESS);
         double discountAmount = discountService.getDiscountAmount(order);
@@ -93,11 +101,13 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Order update(Order order) {
+        log.info("Entered update(Order)");
         return orderRepository.saveAndFlush(order);
     }
 
     private Order getOrderByIdAndStatusOrThrowException(Long id, OrderStatus orderStatus) {
-        return orderRepository.findByIdAndAndOrderStatus(id, orderStatus)
+        log.info("Entered getOrderByIdAndStatusOrThrowException(Long, OrderStatus)");
+        return orderRepository.findByIdAndOrderStatus(id, orderStatus)
                 .orElseThrow(() -> new NotFoundException("Order id is not exist"));
     }
 }
