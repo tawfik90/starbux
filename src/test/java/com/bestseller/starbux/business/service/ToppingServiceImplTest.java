@@ -2,6 +2,7 @@ package com.bestseller.starbux.business.service;
 
 import com.bestseller.starbux.business.domain.ItemRequest;
 import com.bestseller.starbux.data.entity.Topping;
+import com.bestseller.starbux.data.entity.ToppingDetails;
 import com.bestseller.starbux.data.repository.ToppingDetailsRepository;
 import com.bestseller.starbux.data.repository.ToppingRepository;
 import com.bestseller.starbux.exception.NotFoundException;
@@ -110,5 +111,28 @@ public class ToppingServiceImplTest {
 
         verify(toppingRepository).findAll();
         assertThat(results).isEqualTo(toppings);
+    }
+
+    @Test
+    public void saveAllToppingDetails() {
+
+        toppingService.saveAllToppingDetails(new ArrayList<>());
+
+        verify(toppingDetailsRepository).saveAll(any(List.class));
+    }
+
+    @Test
+    public void getToppingsInIds() {
+        List<Integer> ids = new ArrayList<>();
+        ids.add(1);
+        ids.add(2);
+        List<Topping> toppingList = new ArrayList<>();
+        toppingList.add(new Topping("T1", 1.00, 1));
+        toppingList.add(new Topping("T2", 2.00, 2));
+        given(toppingRepository.findToppingByIdIn(ids)).willReturn(toppingList);
+
+        toppingService.getToppingsInIds(ids);
+
+        verify(toppingRepository).findToppingByIdIn(ids);
     }
 }
