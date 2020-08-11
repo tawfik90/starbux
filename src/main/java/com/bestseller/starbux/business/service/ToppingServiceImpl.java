@@ -53,7 +53,12 @@ public class ToppingServiceImpl implements ToppingService {
     }
 
     @Override
-    public List<ToppingDetails> addToppingsToDrink(List<ToppingDetails> toppingDetailsList) {
+    public List<ToppingDetails> saveAllToppingDetails(List<ToppingDetails> toppingDetailsList) {
         return toppingDetailsRepository.saveAll(toppingDetailsList);
+    }
+
+    @Override
+    public List<Topping> getToppingsInIds(List<Integer> ids) {
+        return toppingRepository.findToppingByIdIn(ids);
     }
 }

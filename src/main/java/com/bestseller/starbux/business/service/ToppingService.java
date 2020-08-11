@@ -17,5 +17,7 @@ public interface ToppingService {
 
     Topping findToppingByIdOrThrowException(Integer id);
 
-    List<ToppingDetails> addToppingsToDrink(List<ToppingDetails> toppingDetailsList);
+    List<ToppingDetails> saveAllToppingDetails(List<ToppingDetails> toppingDetailsList);
+
+    List<Topping> getToppingsInIds(List<Integer> ids);
 }

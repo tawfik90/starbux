@@ -33,7 +33,7 @@ public class OrderServiceController {
     @PostMapping("/{id}/drinks")
     public ResponseEntity<?> addItem(@PathVariable Long id,
                                      @Valid @RequestBody OrderDetailsRequest orderDetailsRequest) {
-        return ResponseEntity.ok(orderService.addDrink(id, orderDetailsRequest));
+        return ResponseEntity.ok(orderService.addOrderDetail(id, orderDetailsRequest));
     }
 
     @GetMapping("/{id}")
@@ -41,7 +41,7 @@ public class OrderServiceController {
         return ResponseEntity.ok(orderService.getOrderBy(id));
     }
 
-    @PostMapping("/{id}/customer")
+    @PostMapping("/{id}/finalize")
     public ResponseEntity<Order> finalize(@PathVariable Long id,
                                           @RequestBody CustomerRequest customerRequest) {
         return ResponseEntity.ok(orderService.finalizeOrder(id, customerRequest));

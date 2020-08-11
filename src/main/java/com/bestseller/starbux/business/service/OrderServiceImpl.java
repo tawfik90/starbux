@@ -1,6 +1,5 @@
 package com.bestseller.starbux.business.service;
 
-import com.bestseller.starbux.business.domain.CartResponse;
 import com.bestseller.starbux.business.domain.CustomerRequest;
 import com.bestseller.starbux.business.domain.OrderDetailsRequest;
 import com.bestseller.starbux.data.entity.Customer;
@@ -8,6 +7,7 @@ import com.bestseller.starbux.data.entity.Drink;
 import com.bestseller.starbux.data.entity.Order;
 import com.bestseller.starbux.data.entity.OrderDetails;
 import com.bestseller.starbux.data.entity.OrderStatus;
+import com.bestseller.starbux.data.entity.Topping;
 import com.bestseller.starbux.data.entity.ToppingDetails;
 import com.bestseller.starbux.data.repository.OrderDetailsRepository;
 import com.bestseller.starbux.data.repository.OrderRepository;
@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -50,27 +49,28 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public CartResponse addDrink(Long orderId, OrderDetailsRequest orderDetailsRequest) {
-        Order order = findOrderByIdOrThrowException(orderId);
+    public Order addOrderDetail(Long orderId, OrderDetailsRequest orderDetailsRequest) {
+        Order order = getOrderByIdAndStatusOrThrowException(orderId, OrderStatus.IN_PROGRESS);
         Drink drink = drinkService.findDrinkByIdOrThrowException(orderDetailsRequest.getDrinkId());
 
+        List<Topping> toppings = toppingService.getToppingsInIds(orderDetailsRequest.getToppingIds());
+
         List<ToppingDetails> toppingDetailsList = new ArrayList<>();
-        if (Objects.nonNull(orderDetailsRequest.getToppingIds()) && !orderDetailsRequest.getToppingIds().isEmpty()) {
-            orderDetailsRequest
-                    .getToppingIds()
-                    .forEach(id -> {
-                        ToppingDetails toppingDetails = new ToppingDetails();
-                        toppingDetails.setTopping(toppingService.findToppingByIdOrThrowException(id));
-                        toppingDetailsList.add(toppingDetails);
-                    });
-        }
+
         OrderDetails orderDetails = orderDetailsRepository.save(new OrderDetails(order, drink));
-        toppingDetailsList.forEach(toppingDetails -> {
-            toppingDetails.setOrderDetails(orderDetails);
-        });
-        orderDetails.setToppingDetails(toppingService.addToppingsToDrink(toppingDetailsList));
-        orderRepository.save(addToOrderAmount(orderDetails));
-        return new CartResponse(orderDetails, orderRepository.findById(orderId).get());
+        toppings.forEach(topping -> toppingDetailsList.add(new ToppingDetails(topping, orderDetails)));
+
+        orderDetails.setToppingDetails(toppingService.saveAllToppingDetails(toppingDetailsList));
+
+        order.setOrderAmount(getOrderTotalAmount(orderDetails));
+        return update(order);
+    }
+
+    private Double getOrderTotalAmount(OrderDetails orderDetails) {
+        Double totalAmount = 0.00d;
+        totalAmount += orderDetailsRepository.getTotalAmountForDrinks(orderDetails.getOrder().getId());
+        totalAmount += orderDetailsRepository.getTotalAmountForToppings(orderDetails.getOrder().getId());
+        return totalAmount;
     }
 
     @Override
@@ -81,7 +81,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Order finalizeOrder(Long orderId, CustomerRequest customerRequest) {
         Customer customer = customerService.getCustomerBy(customerRequest.getUsername());
-        Order order = findOrderByIdOrThrowException(orderId);
+        Order order = getOrderByIdAndStatusOrThrowException(orderId, OrderStatus.IN_PROGRESS);
         double discountAmount = discountService.getDiscountAmount(order);
         order.setDiscountAmount(discountAmount);
         order.setOriginalAmount(order.getOrderAmount() - discountAmount);
@@ -91,19 +91,13 @@ public class OrderServiceImpl implements OrderService {
         return order;
     }
 
-    private Order addToOrderAmount(OrderDetails orderDetails) {
-        Double totalAmount = 0.00d;
-        totalAmount += orderDetailsRepository.getTotalAmountForDrinks(orderDetails.getOrder().getId());
-        totalAmount += orderDetailsRepository.getTotalAmountForToppings(orderDetails.getOrder().getId());
-        Order order = orderDetails.getOrder();
-        order.setOrderAmount(totalAmount);
-        order.getOrderDetails().add(orderDetails);
-        return order;
+    @Override
+    public Order update(Order order) {
+        return orderRepository.saveAndFlush(order);
     }
 
-
-    private Order findOrderByIdOrThrowException(Long id) {
-        return orderRepository.findById(id)
+    private Order getOrderByIdAndStatusOrThrowException(Long id, OrderStatus orderStatus) {
+        return orderRepository.findByIdAndAndOrderStatus(id, orderStatus)
                 .orElseThrow(() -> new NotFoundException("Order id is not exist"));
     }
 }

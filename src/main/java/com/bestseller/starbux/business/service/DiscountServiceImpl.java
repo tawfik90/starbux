@@ -17,7 +17,7 @@ public class DiscountServiceImpl implements DiscountService {
         }
         if (order.getOrderDetails().size() >= 3) {
             double smallestAmount = getAmountOfDiscountIfMoreThan3Drinks(order);
-            if (smallestAmount < amountOfDiscount) {
+            if (smallestAmount > amountOfDiscount) {
                 return smallestAmount;
             }
         }
@@ -25,7 +25,7 @@ public class DiscountServiceImpl implements DiscountService {
     }
 
     private Double getAmountOfDiscountIfMoreThan12Euro(Double amount) {
-        return amount - amount * 25/100;
+        return amount * 25/100;
     }
 
     private Double getAmountOfDiscountIfMoreThan3Drinks(Order order) {

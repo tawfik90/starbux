@@ -9,10 +9,12 @@ public interface OrderService {
 
     Order create();
 
-    CartResponse addDrink(Long orderId, OrderDetailsRequest orderDetailsRequest);
+    Order addOrderDetail(Long orderId, OrderDetailsRequest orderDetailsRequest);
 
     Order getOrderBy(Long id);
 
     Order finalizeOrder(Long orderId, CustomerRequest customerRequest);
+
+    Order update(Order order);
 
 }
