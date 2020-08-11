@@ -1,5 +1,6 @@
 package com.bestseller.starbux.business.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import java.util.List;
 
 @NoArgsConstructor(force = true)
 @RequiredArgsConstructor
+@AllArgsConstructor
 @Getter
 @ToString
 public class OrderDetailsRequest {
